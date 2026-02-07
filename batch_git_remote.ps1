@@ -19,10 +19,15 @@ Load-Env
 
 # 設定搜尋的根目錄
 $rootPath = if ($env:ROOT_PATH) { $env:ROOT_PATH } else { "D:\github\chiisen\" }
-$logPath = Join-Path $PSScriptRoot "git_remote_list.log"
-$debugLogPath = Join-Path $PSScriptRoot "git_remote_debug.log"
+# 設定 Log 與 輸出路徑
+$logDir = Join-Path $PSScriptRoot "logs"
+$logPath = Join-Path $logDir "git_remote_list.log"
+$debugLogPath = Join-Path $logDir "git_remote_debug.log"
+$excludedLogPath = Join-Path $logDir "excluded_projects.log"
 $projectsExtractPath = Join-Path $PSScriptRoot "extracted_projects.txt"
-$excludedLogPath = Join-Path $PSScriptRoot "excluded_projects.log"
+
+# 確保 Log 資料夾存在
+if (-not (Test-Path $logDir)) { New-Item -ItemType Directory -Path $logDir | Out-Null }
 
 $startTime = Get-Date -Format 'yyyy-MM-dd HH:mm:ss'
 Write-Host "開始掃描並導出標準專案清單 (Exclude Private/Fork)..." -ForegroundColor Cyan

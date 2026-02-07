@@ -47,8 +47,15 @@
 ### 4. batch_git_status.ps1 (批次狀態檢查)
 檢查 `ROOT_PATH` 下所有 Git 專案是否有未提交的異動。
 
+#### 功能特點
+- **自動切換帳號**：啟動時自動讀取 `.env` 中的 `GITHUB_ACCOUNT` 並切換，確保抓取權限。
+- **自動抓取描述**：異動專案會自動從 GitHub 抓取專案描述並記錄於 Log。
+- **智慧過濾顯示**：畫面僅顯示「公開、非 Fork」的專案異動。
+- **記錄分流**：Private 或 Fork 專案的異動會默默記錄於 Log，不干擾畫面。
+
 #### 使用方法
 - 在 PowerShell 中執行：`./batch_git_status.ps1`
+- **日誌檔案**：`logs/git_status_changed.log` (每次執行自動清空)
 
 ---
 
@@ -56,14 +63,18 @@
 掃描 `ROOT_PATH` 下所有 Git 專案的遠端位址 (`git remote -v`)，並自動分類與導出可用清單。
 
 #### 功能特點
-- **雙 Log 分流**：
-    - **`git_remote_list.log`**: 紀錄標準 2 筆遠端 (fetch/push) 的專案。
+- **中文狀態提示**：
+    - `[✅ 已導出 ...]`：符合條件並成功寫入清單。
+    - `[⏭️ 已跳過]`：因私有、分支、或完成標記而排除。
+- **三路 Log 分流** (存於 `./logs/`)：
+    - **`git_remote_list.log`**: 完整掃描紀錄。
+    - **`excluded_projects.log`**: 詳細記錄每個專案被略過的原因。
     - **`git_remote_debug.log`**: 紀錄擁有 3 筆以上遠端位址的複雜專案。
-- **自動導出清單**：自動將標準公開專案導出至 **`extracted_projects.txt`**。
+- **自動導出清單**：自動將標準公開專案導出至根目錄的 **`extracted_projects.txt`**。
 - **智慧過濾**：
-    - 自動排除 **Private (私人)** 與 **Fork** 專案。
-    - 自動排除 Description 開頭為 **✅** 的已完成專案。
-- **格式相容**：導出的內容格式完全符合 `projects.txt` 要求。
+    - 自動排除 **Private (私人)** 與 **Fork** 專案（畫面會提示原因）。
+    - 自動排除 Description 開頭為 **✅** 的已完成專案（畫面會提示原因）。
+- **魯棒性解析**：支援專案名稱中包含點（.）的 URL 解析（如 `Nuxt.js-test`）。
 
 #### 使用方法
 - 在 PowerShell 中執行：`./batch_git_remote.ps1`
@@ -98,14 +109,15 @@ GITHUB_ACCOUNT=your_username        # 您的主要 GitHub 帳號
 
 ## � 日誌紀錄 (Logs)
 
-本工具產生的日誌檔案均已加入 `.gitignore`，不會被上傳：
+本工具產生的日誌檔案均存放在 **`./logs/`** 目錄下，且已加入 `.gitignore`：
 
-- **`create_log.log`**: 記錄 `batch_gh_create.ps1` 的執行結果，包含專案詳細資訊與本地遠端位址。
-- **`git_remote_list.log`**: 記錄掃描到的標準 2 筆遠端 (fetch/push) 專案。
-- **`git_remote_debug.log`**: 記錄擁有多重遠端位址的專案，方便調試。
-- **`extracted_projects.txt`**: 根據過濾條件導出的可用專案清單，其格式符合 `projects.txt`。
-- **`git_pull_errors.log`**: 記錄 `batch_git_pull.ps1` 執行失敗的倉庫。
-- **`git_status_changed.log`**: 記錄 `batch_git_status.ps1` 偵測到有異動的檔案清單。
+- **`logs/create_log.log`**: 記錄 `batch_gh_create.ps1` 的執行結果。
+- **`logs/git_remote_list.log`**: 記錄掃描到的標準遠端位址清單。
+- **`logs/excluded_projects.log`**: 紀錄 `batch_git_remote.ps1` 略過專案的詳細原因。
+- **`logs/git_remote_debug.log`**: 記錄擁有多重遠端位址的專案。
+- **`extracted_projects.txt`**: (存於根目錄) 導出的可用專案清單，格式符合 `projects.txt`。
+- **`logs/git_pull_errors.log`**: 記錄更新失敗的倉庫。
+- **`logs/git_status_changed.log`**: 記錄偵測到異動的檔案清單與專案描述。
 
 > 💡 **提示**：所有 Log 與導出檔案在每次對應的腳本啟動時，都會自動清空舊資料。
 
