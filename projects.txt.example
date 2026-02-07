@@ -1,0 +1,11 @@
+# 範例一：基本的公開專案
+my-open-tool --public
+
+# 範例二：附帶描述與授權的專案
+my-api-server --private --description "這是我的後端專案" --license mit
+
+# 範例三：使用模板建立並禁用 Wiki
+new-web-app --public --template chiisen/nextjs-template --disable-wiki
+
+# 範例四：指定 gitignore
+data-science-env --private --gitignore Python

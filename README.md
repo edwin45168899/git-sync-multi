@@ -3,58 +3,94 @@
 
 ## 🛠️ 工具清單
 
-### 1. batch_git_pull.ps1 (批次更新)
+### 1. batch_gh_create.ps1 (批次 GitHub 倉庫建立)
+這個工具可以讓您在多個 GitHub 帳號下快速同步建立多個 Repository，並自動處理權限與本地關聯。
+
+#### 功能特點
+- **多帳號自動切換**：自動偵測 `gh auth status` 中的帳號並執行 `gh auth switch`。
+- **雙檔案配置**：透過 `accounts.txt` 管理帳號，`projects.txt` 管理專案名稱與參數。
+- **智慧過濾**：自動跳過已存在的專案，若為私人或 Fork 專案會發出明顯警告。
+- **自動關聯**：若本地已存在資料夾且無遠端關聯，自動執行 `git init`、`commit` 並推送到新建立的遠端。
+
+#### 使用方法
+- 在 `accounts.txt` 填入 GitHub 帳號清單。
+- 在 `projects.txt` 填入專案資訊（例如：`my-repo --public`）。
+- 執行：`./batch_gh_create.ps1`
+- **日誌紀錄**：所有的成功、跳過或錯誤原因都會紀錄在 `create_log.txt`。
+
+---
+
+### 2. batch_git_pull.ps1 (批次更新)
 自動掃描指定目錄下的所有子資料夾，若發現為 Git 倉庫，則自動執行 `git pull` 以同步遠端更新。
 
 #### 使用方法
-- 在 PowerShell 中執行：
-  ```powershell
-  ./batch_git_pull.ps1
-  ```
+- 在 PowerShell 中執行：`./batch_git_pull.ps1`
 - **錯誤記錄**：若執行過程中發生錯誤，將會記錄在 `git_pull_errors.log` 中。
 
 ---
 
-### 2. batch_create_git_sync.ps1 (批次初始化)
+### 3. batch_create_git_sync.ps1 (批次初始化)
 批次為每個子目錄建立 `setup_git_sync.ps1` 同步設定腳本。
 
 #### 功能說明
-- 掃描 `ROOT_PATH` 下的所有子目錄。
-- 若目錄中尚未存在 `setup_git_sync.ps1`，則會根據 `setup_git_sync.ps1.example` 範本產生檔案。
-- 自動將範本中的 `PROJECT_NAME` 替換為實際的資料夾名稱。
+- 掃描 `ROOT_PATH` 下的所有子目錄，若無 `setup_git_sync.ps1` 則根據範本產生檔案。
 
 #### 使用方法
-- 在 PowerShell 中執行：
-  ```powershell
-  ./batch_create_git_sync.ps1
-  ```
-
-### 3. batch_git_status.ps1 (批次狀態檢查)
-檢查 `ROOT_PATH` 下所有 Git 專案是否有未提交的異動（Modified, Untracked 等）。
-
-#### 使用方法
-- 在 PowerShell 中執行：
-  ```powershell
-  ./batch_git_status.ps1
-  ```
-- **記錄檔**：有異動的目錄與具體檔案清單會記錄在 `git_status_changed.log` 中。
+- 在 PowerShell 中執行：`./batch_create_git_sync.ps1`
 
 ---
 
-## ⚙️ 環境配置 (.env)
-請複製 `.env.example` 並更名為 `.env`，設定以下變數：
+### 4. batch_git_status.ps1 (批次狀態檢查)
+檢查 `ROOT_PATH` 下所有 Git 專案是否有未提交的異動。
 
-| 變數名稱 | 說明 | 範例 |
-| :--- | :--- | :--- |
-| `ROOT_PATH` | 所有 Git 專案 export 的父目錄路徑 | `D:\github\chiisen\` |
+#### 使用方法
+- 在 PowerShell 中執行：`./batch_git_status.ps1`
+
+---
+
+## ⚙️ 配置說明
+
+### 1. 環境變數 (.env)
+請將 `.env.example` 複製為 `.env` 並根據您的環境修改：
+```text
+ROOT_PATH="D:\github\chiisen\"      # 所有專案存放的根目錄
+GITHUB_ACCOUNT=your_username        # 您的主要 GitHub 帳號
+```
+
+### 2. 帳號清單 (accounts.txt)
+列出所有受管理的 GitHub 帳號（需已透過 `gh auth login` 登入）：
+- 格式：每行一個帳號名稱。
+- 範例請參考 `accounts.txt.example`。
+
+### 3. 專案清單 (projects.txt)
+列出您想要巡檢或建立的專案名稱與 `gh` 參數：
+- 格式：`[專案名稱] [可選參數]`。
+- 範例請參考 `projects.txt.example`。
+- **支援參數**：可加入 `--public`, `--private`, `--description "..."`, `--license mit` 等所有 GitHub CLI 支援的參數。
+
+---
+
+## � 日誌紀錄 (Logs)
+
+本工具產生的日誌檔案均已加入 `.gitignore`，不會被上傳：
+
+- **`create_log.txt`**: 記錄 `batch_gh_create.ps1` 的執行結果。
+    - `[SUCCESS]`: 成功建立新倉庫。
+    - `[EXIST]`: 倉庫已存在（公開專案）。
+    - `[WARN]`: 略過私人專案或 Fork 專案的警告紀錄。
+    - `[ERROR]`: 建立失敗及其詳細原因。
+- **`git_pull_errors.log`**: 記錄 `batch_git_pull.ps1` 執行失敗的倉庫。
+- **`git_status_changed.log`**: 記錄 `batch_git_status.ps1` 偵測到有異動的檔案清單。
 
 ---
 
 ## 📄 檔案結構
-- `batch_git_pull.ps1`: 批次執行 `git pull` 的主腳本。
-- `batch_create_git_sync.ps1`: 批次建立同步設定的輔助腳本。
-- `batch_git_status.ps1`: 批次檢查 Git 異動狀態的腳本。
-- `setup_git_sync.ps1.example`: `setup_git_sync.ps1` 的內容範本。
-- `.env`: 環境變數設定檔。
+- `batch_gh_create.ps1`: 核心建立與同步工具。
+- `batch_git_pull.ps1`: 批次更新工具。
+- `batch_create_git_sync.ps1`: 批次同步腳本初始化工具。
+- `batch_git_status.ps1`: 批次異動檢查工具。
+- `accounts.txt.example`: 帳號清單範本。
+- `projects.txt.example`: 專案清單範本。
+- `.env.example`: 環境變數範本。
 
 
