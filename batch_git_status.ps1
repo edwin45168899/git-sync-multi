@@ -62,11 +62,12 @@ foreach ($dir in $directories) {
         if ($status.Count -eq 1 -and ($status[0] -match "setup_git_sync.ps1" -or $status[0] -match "\.python-version")) {
             # 💡 特殊處理：如果唯一的變更只有 setup_git_sync.ps1 或 .python-version，則捨棄變更
             $fileName = $status[0].Substring(3).Trim()
+            Write-Host "🧹 [自動還原] 正在清理專案 $($dir.Name) 的雜訊檔案: $fileName" -ForegroundColor Gray
             
             # 1. 處理已追蹤的修改 (Modified)
-            git -C $dir.FullName checkout -- $fileName 2>$null
+            git -C $dir.FullName checkout -- $fileName 2>$null | Out-Null
             # 2. 處理未追蹤的檔案 (Untracked ??)
-            git -C $dir.FullName clean -f $fileName 2>$null
+            git -C $dir.FullName clean -f $fileName 2>$null | Out-Null
             
             # 重新確認狀態
             $status = @(git -C $dir.FullName status --porcelain 2>$null | Where-Object { $_.Trim() -ne "" })
@@ -117,8 +118,13 @@ foreach ($dir in $directories) {
             } else {
                 # 非 Fork 專案：顯示在畫面上並記錄到 Log
                 $changedCount++
-                $msg = "📍 [有異動] $($dir.Name)"
+                $msg = "[$changedCount] 📍 [有異動] $($dir.Name)"
                 Write-Host $msg -ForegroundColor Yellow
+                
+                # 顯示異動檔案清單 (縮排顯示)
+                foreach ($line in $status) {
+                    Write-Host "    $line" -ForegroundColor DarkGray
+                }
                 
                 "[$($dir.Name)]`n說明: $description`n路徑: $($dir.FullName)`n內容:`n$($status -join "`n")`n" | Out-File -FilePath $logPath -Append -Encoding utf8
             }

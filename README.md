@@ -1,6 +1,17 @@
 # git-sync-multi
 批次管理多個 Git 專案的同步與備份工具。
 
+## 🎯 核心理念與原則
+本專案遵循以下開發規範與運作指南，AI 代理人 (Agent) 進行開發時應嚴格遵守：
+
+- **啟動自動化**: 所有腳本啟動時自動載入 `.env` 並切換至 `GITHUB_ACCOUNT` 指定之 GitHub 帳號。
+- **智慧過濾 (Smart Filtering)**: 自動跳過 **Private (私有)**、**Fork (分支)** 以及 Description 以 **✅** 開頭的專案，除非有特殊指令。
+- **高效能並行**: 針對網路與磁碟操作，優先使用 **平行處理 (Parallel)** 並搭配 **Memory Buffer** 紀錄日誌，確保效率與併發安全。
+- **自動化自愈**: 具備自動還原環境雜訊（如 `.python-version`）與自動同步 Windows 目錄圖示之能力。
+- **規範化目錄**: 日誌存於 `logs/`、設定存於 `ini/`、產出存於 `out/`、範本存於 `temp/`。
+
+---
+
 ## 🛠️ 工具清單
 
 ### 1. batch_gh_create.ps1 (批次 GitHub 倉庫建立)
@@ -146,6 +157,7 @@ GITHUB_ACCOUNT=your_username        # 您的主要 GitHub 帳號
 - `batch_git_remote.ps1`: 批次遠端位址掃描工具。
 - `ini/accounts.txt.example`: 帳號清單範本。
 - `ini/projects.txt.example`: 專案清單範本。
+- `temp/setup_git_sync.ps1.example`: 同步腳本生成範本。
 - `.env.example`: 環境變數範本。
 - `GEMINI.md`: AI 代理人協作規範與專案開發慣例。
 

@@ -26,7 +26,7 @@ if ($env:GITHUB_ACCOUNT) {
 $rootPath = if ($env:ROOT_PATH) { $env:ROOT_PATH } else { "D:\github\chiisen\" }
 $logDir = Join-Path $PSScriptRoot "logs"
 $excludedLogPath = Join-Path $logDir "excluded_sync_projects.log"
-$templatePath = Join-Path $PSScriptRoot "setup_git_sync.ps1.example"
+$templatePath = Join-Path $PSScriptRoot "temp\setup_git_sync.ps1.example"
 $targetFileName = "setup_git_sync.ps1"
 
 # 確保 Log 資料夾存在
@@ -87,7 +87,7 @@ $executionTime = Measure-Command {
 
         # 如果該目錄已經有檔案，則跳過
         if (Test-Path $targetPath) {
-            Write-Host "跳過 (setup_git_sync.ps1 檔案已存在): $($dir.Name)" -ForegroundColor Gray
+            Write-Host "跳過 (`setup_git_sync.ps1` 檔案已存在): $($dir.Name)" -ForegroundColor Gray
             return
         }
 
