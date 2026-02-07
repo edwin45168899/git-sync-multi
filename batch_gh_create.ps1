@@ -36,9 +36,15 @@ Write-Host "偵測到帳號: $($ghAccounts -join ', ')" -ForegroundColor Gray
 # 設定參數
 $rootPath = if ($env:ROOT_PATH) { $env:ROOT_PATH } else { "D:\github\chiisen\" }
 $mainAccount = $env:GITHUB_ACCOUNT
-$accountsFile = Join-Path $PSScriptRoot "accounts.txt"
-$projectsFile = Join-Path $PSScriptRoot "projects.txt"
-$createLogPath = Join-Path $PSScriptRoot "create_log.log"
+$logDir = Join-Path $PSScriptRoot "logs"
+$outDir = Join-Path $PSScriptRoot "ini"
+$accountsFile = Join-Path $outDir "accounts.txt"
+$projectsFile = Join-Path $outDir "projects.txt"
+$createLogPath = Join-Path $logDir "create_log.log"
+
+# 確保資料夾存在
+if (-not (Test-Path $logDir)) { New-Item -ItemType Directory -Path $logDir | Out-Null }
+if (-not (Test-Path $outDir)) { New-Item -ItemType Directory -Path $outDir | Out-Null }
 
 # 顯示主帳號資訊
 if ($mainAccount) {

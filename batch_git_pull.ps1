@@ -17,9 +17,19 @@ function Load-Env {
 # 執行載入
 Load-Env
 
+# 切換 GitHub 帳號 (確保權限正確)
+if ($env:GITHUB_ACCOUNT) {
+    Write-Host "切換 GitHub 帳號至: $env:GITHUB_ACCOUNT" -ForegroundColor Cyan
+    gh auth switch -u $env:GITHUB_ACCOUNT 2>$null
+}
+
 # 設定搜尋的根目錄 (優先從環境變數取得)
 $rootPath = if ($env:ROOT_PATH) { $env:ROOT_PATH } else { "D:\github\chiisen\" }
-$logPath = Join-Path $PSScriptRoot "git_pull_errors.log"
+$logDir = Join-Path $PSScriptRoot "logs"
+$logPath = Join-Path $logDir "git_pull_errors.log"
+
+# 確保 Log 資料夾存在
+if (-not (Test-Path $logDir)) { New-Item -ItemType Directory -Path $logDir | Out-Null }
 
 Write-Host "開始批次執行 git pull: $rootPath ..." -ForegroundColor Cyan
 
@@ -29,12 +39,14 @@ Write-Host "開始批次執行 git pull: $rootPath ..." -ForegroundColor Cyan
 # 取得所有子目錄
 $directories = Get-ChildItem -Path $rootPath -Directory
 
+$currentCount = 0
 foreach ($dir in $directories) {
     $gitDir = Join-Path $dir.FullName ".git"
     
     # 檢查是否為 Git 倉庫
     if (Test-Path $gitDir) {
-        Write-Host "正在處理: $($dir.Name)..." -ForegroundColor Gray
+        $currentCount++
+        Write-Host "[$currentCount] 正在處理: $($dir.Name)..." -ForegroundColor Gray
         
         # 執行 git pull
         # 使用 -C 參數可以直接指定路徑執行的 git 指令

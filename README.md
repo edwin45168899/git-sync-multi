@@ -13,19 +13,22 @@
 - **自動關聯**：若本地已存在資料夾且無遠端關聯，自動執行 `git init`、`commit` 並推送到新建立的遠端。
 
 #### 使用方法
-- 在 `accounts.txt` 填入 GitHub 帳號清單。
-- 在 `projects.txt` 填入專案資訊（例如：`my-repo --public`）。
+- 在 `ini/accounts.txt` 填入 GitHub 帳號清單。
+- 在 `ini/projects.txt` 填入專案資訊（例如：`my-repo --public`）。
 - 執行：`./batch_gh_create.ps1`
-- **日誌紀錄**：所有的成功、跳過或錯誤原因都會紀錄在 `create_log.log`。
+- **日誌紀錄**：所有的成功、跳過或錯誤原因都會紀錄在 `logs/create_log.log`。
 
 ---
 
 ### 2. batch_git_pull.ps1 (批次更新)
 自動掃描指定目錄下的所有子資料夾，若發現為 Git 倉庫，則自動執行 `git pull` 以同步遠端更新。
 
+#### 功能特點
+- **自動切換帳號**：啟動時自動讀取 `.env` 中的 `GITHUB_ACCOUNT` 並切換，確保更新權限。
+
 #### 使用方法
 - 在 PowerShell 中執行：`./batch_git_pull.ps1`
-- **錯誤記錄**：若執行過程中發生錯誤，將會記錄在 `git_pull_errors.log` 中。
+- **錯誤記錄**：若執行過程中發生錯誤，將會記錄在 `logs/git_pull_errors.log` 中。
 
 ---
 
@@ -95,15 +98,15 @@ ROOT_PATH="D:\github\chiisen\"      # 所有專案存放的根目錄
 GITHUB_ACCOUNT=your_username        # 您的主要 GitHub 帳號
 ```
 
-### 2. 帳號清單 (accounts.txt)
+### 2. 帳號清單 (ini/accounts.txt)
 列出所有受管理的 GitHub 帳號（需已透過 `gh auth login` 登入）：
 - 格式：每行一個帳號名稱。
-- 範例請參考 `accounts.txt.example`。
+- 範例請參考 `ini/accounts.txt.example`。
 
-### 3. 專案清單 (projects.txt)
+### 3. 專案清單 (ini/projects.txt)
 列出您想要巡檢或建立的專案名稱與 `gh` 參數：
 - 格式：`[專案名稱] [可選參數]`。
-- 範例請參考 `projects.txt.example`。
+- 範例請參考 `ini/projects.txt.example`。
 - **支援參數**：可加入 `--public`, `--private`, `--description "..."`, `--license mit` 等所有 GitHub CLI 支援的參數。
 
 ---
@@ -130,8 +133,8 @@ GITHUB_ACCOUNT=your_username        # 您的主要 GitHub 帳號
 - `batch_create_git_sync.ps1`: 批次同步腳本初始化工具。
 - `batch_git_status.ps1`: 批次異動檢查工具。
 - `batch_git_remote.ps1`: 批次遠端位址掃描工具。
-- `accounts.txt.example`: 帳號清單範本。
-- `projects.txt.example`: 專案清單範本。
+- `ini/accounts.txt.example`: 帳號清單範本。
+- `ini/projects.txt.example`: 專案清單範本。
 - `.env.example`: 環境變數範本。
 
 
