@@ -32,11 +32,15 @@
 ### 3. batch_create_git_sync.ps1 (批次初始化)
 批次為每個子目錄建立 `setup_git_sync.ps1` 同步設定腳本。
 
-#### 功能說明
-- 掃描 `ROOT_PATH` 下的所有子目錄，若無 `setup_git_sync.ps1` 則根據範本產生檔案。
+#### setup_git_sync.ps1 特色
+每個生成的腳本現在都具備 **等冪性 (Idempotence)** / **自愈能力**：
+- **自動歸零**：執行時會先強制清除所有的 `pushurl` 設定。
+- **防止堆疊**：即使多次重複執行腳本，位址清單依然會保持正確的順序與數量（4 筆紀錄）。
+- **同步備份**：依序設定主要帳號與備份帳號，確保一鍵即可同步推送至所有遠端。
 
 #### 使用方法
 - 在 PowerShell 中執行：`./batch_create_git_sync.ps1`
+- 進入子目錄執行：`./setup_git_sync.ps1`
 
 ---
 

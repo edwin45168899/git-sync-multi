@@ -14,14 +14,15 @@ Write-Output "主要遠端: $MainUrl"
 Write-Output "主要遠端1: $MainUrl1"
 Write-Output "主要遠端2: $MainUrl2"
 
-# 1. 加入 backup repo 到 origin 的 push list
-git remote set-url --add --push origin $BackupUrl
+# 1. 徹底清除所有已堆疊的 push 位址 (防止重複執行導致堆疊)
+# 使用 unset-all 可以解決當前已存在多筆資料時 set-url 會失敗的問題
+git config --unset-all remote.origin.pushurl 2>$null
 
-# 2. 加入主要 repo 到 origin 的 push list
+# 2. 依序重新新增所有的 push 位址
 git remote set-url --add --push origin $MainUrl
+git remote set-url --add --push origin $BackupUrl
 git remote set-url --add --push origin $MainUrl1
 git remote set-url --add --push origin $MainUrl2
 
 Write-Output "設定完成。目前的 remote 設定如下："
 git remote -v
-
