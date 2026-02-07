@@ -40,36 +40,42 @@ Write-Host "開始批次執行 git pull: $rootPath ..." -ForegroundColor Cyan
 $directories = Get-ChildItem -Path $rootPath -Directory
 
 $currentCount = 0
-foreach ($dir in $directories) {
-    $gitDir = Join-Path $dir.FullName ".git"
-    
-    # 檢查是否為 Git 倉庫
-    if (Test-Path $gitDir) {
-        $currentCount++
-        Write-Host "[$currentCount] 正在處理: $($dir.Name)..." -ForegroundColor Gray
+# 預先計算合法的 Git 倉庫數量
+$validRepos = $directories | Where-Object { Test-Path (Join-Path $_.FullName ".git") }
+$totalRepoCount = if ($null -ne $validRepos) { $validRepos.Count } else { 0 }
+
+Write-Host "偵測到 $totalRepoCount 個 Git 倉庫，開始平行更新 (加速模式)..." -ForegroundColor Cyan
+
+$executionTime = Measure-Command {
+    $directories | ForEach-Object -Parallel {
+        $dir = $_
+        $gitDir = Join-Path $dir.FullName ".git"
+        $logPath = $using:logPath
         
-        # 執行 git pull
-        # 使用 -C 參數可以直接指定路徑執行的 git 指令
-        $output = git -C $dir.FullName pull 2>&1
-        
-        if ($LASTEXITCODE -ne 0) {
-            $errorMsg = "❌ [錯誤] 目錄: $($dir.FullName)`n原因: $output`n"
-            Write-Host $errorMsg -ForegroundColor Red
-            $errorMsg | Out-File -FilePath $logPath -Append -Encoding utf8
+        if (Test-Path $gitDir) {
+            # 執行 git pull
+            $output = git -C $dir.FullName pull 2>&1
+            
+            if ($LASTEXITCODE -ne 0) {
+                $errorMsg = "❌ [錯誤] 目錄: $($dir.FullName)`n原因: $output`n"
+                Write-Host $errorMsg -ForegroundColor Red
+                $errorMsg | Out-File -FilePath $logPath -Append -Encoding utf8
+            }
+            else {
+                Write-Host "✅ [成功] $($dir.Name)" -ForegroundColor Green
+            }
         }
-        else {
-            Write-Host "✅ [成功] $($dir.Name)" -ForegroundColor Green
-        }
-    }
-    else {
-        Write-Host "跳過 (非 Git 倉庫): $($dir.Name)" -ForegroundColor DarkGray
-    }
+    } -ThrottleLimit 10
 }
 
+$minutes = [Math]::Floor($executionTime.TotalMinutes)
+$seconds = $executionTime.Seconds
 Write-Host "`n全部處理完成！" -ForegroundColor Cyan
+Write-Host "總計耗時: $minutes 分 $seconds 秒" -ForegroundColor Yellow
+
 if (Test-Path $logPath) {
-    $errorCount = (Get-Content $logPath | Measure-Object -Line).Lines
+    $errorCount = (Get-Content $logPath | Where-Object { $_.Trim() -ne "" } | Measure-Object -Line).Lines
     if ($errorCount -gt 1) {
-        Write-Host "有 $errorCount 處錯誤，請查看 Log: $logPath" -ForegroundColor Yellow
+        Write-Host "有發現錯誤紀錄，請查看 Log: $logPath" -ForegroundColor Red
     }
 }
