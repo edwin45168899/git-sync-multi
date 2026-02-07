@@ -127,10 +127,20 @@ GITHUB_ACCOUNT=your_username        # 您的主要 GitHub 帳號
 
 ---
 
-### 4. AI 代理人指南 (GEMINI.md)
-為了優化與 AI (如 Gemini, Claude, Cursor) 的協作體驗，專案根目錄包含專屬的 **`GEMINI.md`**：
-- **內容**：紀錄本專案的路徑規範（logs/ini/out）、自動化自愈邏輯、以及平行處理效能共識。
-- **作用**：當您使用 AI Agent 協助開發時，它會自動讀取此檔案以確保遵循既有的開發習慣，避免路徑衝突或重複說明。
+### 4. AI 協作生態系
+本專案致力於打造對 AI Agent (如 Gemini, Claude, Cursor) 極度友善的開發環境，相關文件位於 **`docs/`** 與根目錄：
+
+- **`GEMINI.md` (專案級規範)**：
+    - **內容**：定義本專案的路徑結構（logs/ini/out）、自愈邏輯、與平行處理共識。
+    - **作用**：Agent 進入本專案後，首要閱讀此檔以快速「同步」開發習慣。
+
+- **`docs/AI_AGENT_PROTOCOL.md` (全域協作標準)**：
+    - **內容**：定義跨專案通用的 **AACS (AI Agent Collaboration Standard)**，包含標頭註解規範、脈絡持久化與效能優化準則。
+    - **作用**：可匯入至您的 AI 工具 (System Prompt) 中，讓 Agent 具備「資深工程師」般的開發本能。
+
+- **`docs/GEMINI_GLOBAL_SETUP.md` (Gemini 設定指南)**：
+    - **內容**：針對 **Gemini** 使用者，提供將 AACS 整合至全域規則 (Rule) 的具體步驟與優勢分析。
+    - **作用**：引導您完成「無縫 AI 協作」的最後一哩路。
 
 ---
 
@@ -161,6 +171,8 @@ GITHUB_ACCOUNT=your_username        # 您的主要 GitHub 帳號
 - `ini/projects.txt.example`: 專案清單範本。
 - `temp/setup_git_sync.ps1.example`: 同步腳本生成範本。
 - `.env.example`: 環境變數範本。
-- `GEMINI.md`: AI 代理人協作規範與專案開發慣例。
+- `GEMINI.md`: 專案級 AI 開發規範 (Local Context)。
+- `docs/AI_AGENT_PROTOCOL.md`: 全域 AI 協作標準 (Global Rule)。
+- `docs/GEMINI_GLOBAL_SETUP.md`: Gemini 全域設定指南。
 
 
